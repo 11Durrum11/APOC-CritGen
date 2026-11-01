@@ -100,12 +100,12 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
 <div id="results"><p class="empty">No cards drawn yet. Roll a crit or a fumble above.</p></div>
 
 <details id="gunspanel">
-<summary>🔫 Guns — Sorcery &amp; Steam misfire roller &amp; firearms reference</summary>
-<p class="small">In <i>Sorcery &amp; Steam</i>, a firearm attack that rolls a <b>natural 1</b> may misfire: roll <b>1d20</b> on the Misfire table (p.146). Masterwork weapon: <b>−1</b>. Percussion cap ammunition: <b>−1</b>. Those are the only modifiers — the Fog of Life is not damp and does not touch powder.</p>
+<summary>🔫 Guns — automatic Sorcery &amp; Steam misfire chart &amp; firearms reference</summary>
+<p class="small">In <i>Sorcery &amp; Steam</i>, whenever a firearm attack roll is a <b>natural 1</b>, there is a chance of a misfire and you roll <b>1d20</b> on the Misfire table (p.146). <b>CritGen now rolls that chart automatically as soon as the attack roll is a natural 1</b> — enter your actual attack roll below, or let the app roll the attack for you. There is no separate misfire roll to make. Masterwork weapon: <b>−1</b>. Percussion cap ammunition: <b>−1</b>. Those are the only modifiers — the Fog of Life is not damp and does not touch powder.</p>
 <label class="switch"><input type="checkbox" id="mw"> Masterwork weapon (−1)</label>
 <label class="switch"><input type="checkbox" id="perc"> Percussion cap (−1)</label>
-<div class="brow"><button class="btn" id="rollmis">Roll misfire (natural 1)</button></div>
-<div id="misout"></div>
+<div class="brow"><span><label>Firearm attack roll (d20)</label><br><input type="number" id="atkroll" min="1" max="20" placeholder="Your roll"></span><button class="btn" id="rollattack">Roll attack for me</button></div>
+<div id="misout"><p class="small">If the attack roll is a natural 1, the misfire chart result will appear here automatically.</p></div>
 
 <h3>Every firearm in your resources — the master list (52)</h3>
 <p class="small">Swept from every resource at Shaun's instruction, 2026-11-01: the <i>Sorcery &amp; Steam</i> book, Shaun's compiled firearms document (<i>fire_arms-2.docx</i>), <i>Lock &amp; Load</i> and <i>Liber Mechanika</i> (Iron Kingdoms). The full 37-book Blendcrafter sweep was also checked — nothing else in it is a firearm. <b>Watch the crit line:</b> Sorcery &amp; Steam book guns all crit ×3 (the Guns button auto-sets ×3); guns from Shaun's document mostly crit ×4 — set the multiplier to the gun's own crit before you draw.</p>
@@ -145,7 +145,7 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
 </details>
 
 <footer>
-Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source). The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
+Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.3, 2026-11-01 — at Shaun's instruction, a firearm attack roll of natural 1 now rolls the Sorcery &amp; Steam misfire chart automatically, and the separate misfire roll button is removed. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
 </footer>
 </main>
 <script>
@@ -251,21 +251,42 @@ $('apoc').addEventListener('change',e=>{apoc=e.target.checked;document.body.clas
 $('undo').onclick=()=>{const r=history.shift();if(r&&mode==='deck')queues[r.key].push(r.idx);render();renderCounts();};
 $('clear').onclick=()=>{history=[];render();};
 $('reshuffle').onclick=()=>{resetQueues();};
-$('rollmis').onclick=()=>{
-  const raw=rollDie(20);let mod=raw;
+function makeMisfire(forcedRaw){
+  const raw = Number.isInteger(forcedRaw) ? forcedRaw : rollDie(20);
+  let mod = raw;
   const notes=[];
   if($('mw').checked){mod-=1;notes.push('masterwork −1');}
   if($('perc').checked){mod-=1;notes.push('percussion cap −1');}
   const clamped=Math.max(1,Math.min(20,mod));
-  let band,extra='';
+  let band='';
   if(clamped<=5)band='Weapon fires normally — but the attack was a natural 1, so it probably misses.';
   else if(clamped<=9)band='The charge fails to ignite. The weapon can be fired again without having to reload.';
   else if(clamped<=12)band='The charge is not sufficient to propel the round far enough to hit the target. The shot is wasted.';
   else if(clamped<=15){const r=rollDie(4);band=`The weapon jams. It takes <b>${r} full-round action${r>1?'s':''}</b> [rolled 1d4] to clear the jam before the weapon can be used again.`;}
   else if(clamped<=18){let parts=[],tot=0;for(let i=0;i<3;i++){const r=rollDie(10);parts.push(r);tot+=r;}band=`The barrel becomes fouled with powder residue. It takes <b>${tot} minutes</b> [3d10: ${parts.join('+')}] to clean the weapon so it can be used again.`;}
   else band='The weapon <b>explodes</b>, inflicting its normal damage to its user. The weapon must be repaired or replaced.';
-  $('misout').innerHTML=`<div class="misres">🎲 Misfire roll: <b>${raw}</b>${notes.length?' ('+notes.join(', ')+' → <b>'+clamped+'</b>)':' → <b>'+clamped+'</b>'}<br>${band}<div class="small">Sorcery &amp; Steam, p.146 Misfire table.</div></div>`;
-};
+  const rollLine=`🎲 Chart roll: <b>${raw}</b>${notes.length?' ('+notes.join(', ')+' → <b>'+clamped+'</b>)':' → <b>'+clamped+'</b>'}`;
+  const html=`${rollLine}<br>${band}<div class="small">Sorcery &amp; Steam, p.146 Misfire table — rolled automatically because the firearm attack was a natural 1.</div>`;
+  const text=`${rollLine.replace(/<[^>]+>/g,'')}: ${band.replace(/<[^>]+>/g,'')}`;
+  return {raw, adjusted: clamped, notes, band, html, text};
+}
+function resolveFirearmAttack(forcedAttack){
+  const attack = Number.isInteger(forcedAttack) ? forcedAttack : rollDie(20);
+  if(attack < 1 || attack > 20) return {attack, misfire:null};
+  $('atkroll').value = attack;
+  if(attack !== 1){
+    $('misout').innerHTML=`<div class="misres">🎲 Firearm attack roll: <b>${attack}</b> — not a natural 1, so no misfire chart roll.</div>`;
+    return {attack, misfire:null};
+  }
+  const misfire = makeMisfire();
+  $('misout').innerHTML=`<div class="misres">🎲 Firearm attack roll: <b>1 — natural 1</b>. The misfire chart was rolled automatically.<br>${misfire.html}</div>`;
+  return {attack, misfire};
+}
+$('rollattack').onclick=()=>resolveFirearmAttack();
+$('atkroll').addEventListener('change',()=>{
+  const attack = parseInt($('atkroll').value,10);
+  if(Number.isInteger(attack)) resolveFirearmAttack(attack);
+});
 // firearms table
 (()=>{const t=$('gunstable');MASTER_GUNS.forEach(g=>{const gh=document.createElement('tr');gh.innerHTML=`<td colspan="5" style="background:var(--panel2);font-weight:bold;color:var(--brass)">${g.group}</td>`;t.appendChild(gh);g.rows.forEach(f=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${f.name}</td><td>${f.dmg}</td><td>${f.crit}</td><td>${f.range}</td><td>${f.notes}</td>`;t.appendChild(tr);});});})();
 // browse
