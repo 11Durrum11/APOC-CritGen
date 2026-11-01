@@ -55,6 +55,7 @@ summary{cursor:pointer;font-size:17px;font-weight:bold}
 table{border-collapse:collapse;width:100%;font-size:14.5px;margin:8px 0}
 th,td{border:1px solid var(--line);padding:5px 8px;text-align:left}
 th{background:var(--panel2)}
+.misfire{margin-top:9px;background:rgba(201,138,61,.14);border:1px solid var(--brass);border-radius:8px;padding:8px 10px;font-size:15px;line-height:1.45}
 .misres{font-size:17px;background:var(--panel2);border:1px solid var(--brass);border-radius:10px;padding:10px 12px;margin-top:10px;line-height:1.5}
 .btn{background:var(--brass);color:#151310;border:0;border-radius:9px;padding:10px 16px;font-size:16px;font-weight:bold;cursor:pointer;font-family:inherit}
 .btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-weight:normal}
@@ -83,12 +84,12 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
     <span class="seg" id="modeseg"><button data-mode="deck" class="on">Deck — no repeats</button><button data-mode="random">Pure random</button></span></span>
   <label class="switch"><input type="checkbox" id="apoc"> APOC Survival mode</label>
 </div>
-<p class="small">Crits draw <b>multiplier − 1</b> cards (the original rule). Sorcery &amp; Steam firearms all crit ×3, so picking <b>Guns</b> sets the multiplier to ×3 for you. Fumbles draw 1. Deck mode shuffles each 52-card deck and deals without repeats until it runs out.</p>
+<p class="small">Crits draw <b>multiplier − 1</b> cards (the original rule). Sorcery &amp; Steam firearms all crit ×3, so picking <b>Guns</b> sets the multiplier to ×3 for you. Fumbles draw 1. <b>For Guns fumbles, the Sorcery &amp; Steam misfire chart is rolled automatically with the card.</b> Deck mode shuffles each 52-card deck and deals without repeats until it runs out.</p>
 
 <h2>Critical Hits <span class="hint">— tap a damage type</span></h2>
 <div class="grid hit" id="hitgrid"></div>
 
-<h2>Critical Fumbles <span class="hint">— tap an attack type</span></h2>
+<h2>Critical Fumbles <span class="hint">— tap an attack type; Guns also auto-rolls the misfire chart</span></h2>
 <div class="grid fumb" id="fumbgrid"></div>
 
 <div class="brow">
@@ -101,11 +102,10 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
 
 <details id="gunspanel">
 <summary>🔫 Guns — automatic Sorcery &amp; Steam misfire chart &amp; firearms reference</summary>
-<p class="small">In <i>Sorcery &amp; Steam</i>, whenever a firearm attack roll is a <b>natural 1</b>, there is a chance of a misfire and you roll <b>1d20</b> on the Misfire table (p.146). <b>CritGen now rolls that chart automatically as soon as the attack roll is a natural 1</b> — enter your actual attack roll below, or let the app roll the attack for you. There is no separate misfire roll to make. Masterwork weapon: <b>−1</b>. Percussion cap ammunition: <b>−1</b>. Those are the only modifiers — the Fog of Life is not damp and does not touch powder.</p>
+<p class="small">In <i>Sorcery &amp; Steam</i>, whenever a firearm attack roll is a <b>natural 1</b>, there is a chance of a misfire and you roll <b>1d20</b> on the Misfire table (p.146). <b>That chart roll happens automatically when you tap the Guns button under Critical Fumbles above</b> — the result is attached to the Guns fumble card. There is no firearm attack roll to enter and no separate misfire roll to make. Masterwork weapon: <b>−1</b>. Percussion cap ammunition: <b>−1</b>. Those are the only modifiers — the Fog of Life is not damp and does not touch powder.</p>
 <label class="switch"><input type="checkbox" id="mw"> Masterwork weapon (−1)</label>
 <label class="switch"><input type="checkbox" id="perc"> Percussion cap (−1)</label>
-<div class="brow"><span><label>Firearm attack roll (d20)</label><br><input type="number" id="atkroll" min="1" max="20" placeholder="Your roll"></span><button class="btn" id="rollattack">Roll attack for me</button></div>
-<div id="misout"><p class="small">If the attack roll is a natural 1, the misfire chart result will appear here automatically.</p></div>
+<div id="misout"><p class="small">The latest automatic misfire result from the Guns button will also appear here.</p></div>
 
 <h3>Every firearm in your resources — the master list (52)</h3>
 <p class="small">Swept from every resource at Shaun's instruction, 2026-11-01: the <i>Sorcery &amp; Steam</i> book, Shaun's compiled firearms document (<i>fire_arms-2.docx</i>), <i>Lock &amp; Load</i> and <i>Liber Mechanika</i> (Iron Kingdoms). The full 37-book Blendcrafter sweep was also checked — nothing else in it is a firearm. <b>Watch the crit line:</b> Sorcery &amp; Steam book guns all crit ×3 (the Guns button auto-sets ×3); guns from Shaun's document mostly crit ×4 — set the multiplier to the gun's own crit before you draw.</p>
@@ -145,7 +145,7 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
 </details>
 
 <footer>
-Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.3, 2026-11-01 — at Shaun's instruction, a firearm attack roll of natural 1 now rolls the Sorcery &amp; Steam misfire chart automatically, and the separate misfire roll button is removed. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
+Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
 </footer>
 </main>
 <script>
@@ -200,10 +200,12 @@ function draw(k){
   for(let i=0;i<n;i++){
     const idx=drawIdx(k);const card=d.cards[idx];
     const rec={key:k,idx,name:card.n,eff:card.e,time:new Date()};
+    if(k==='fGu') rec.misfire=makeMisfire();
     if(apoc && (k==='hMg'||k==='fMg')){const b=BLIGHT[Math.floor(Math.random()*BLIGHT.length)];rec.blight=b;}
     if(apoc && SEVERED[card.n]) rec.severed=SEVERED[card.n];
     history.unshift(rec);
   }
+  if(k==='fGu' && history[0] && history[0].misfire) $('misout').innerHTML=`<div class="misres">${history[0].misfire.html}</div>`;
   render();renderCounts();
 }
 function render(){
@@ -218,6 +220,7 @@ function render(){
     if(conf && /save|Fort|Ref|Will/i.test(rec.eff)) meta+=`<span class="chip">Save DC ${conf}</span>`;
     meta+=`<button class="mini" data-copy="${hi}">Copy</button><button class="mini" data-reroll="${hi}">🎲 Re-roll dice</button>`;
     let extra='';
+    if(rec.misfire) extra+=`<div class="misfire"><b>Automatic misfire chart — from the Guns button:</b> ${rec.misfire.html}</div>`;
     if(rec.severed) extra+=`<div class="severed"><b>⚠ Severed (APOC):</b> ${rec.severed}</div>`;
     if(rec.blight) extra+=`<div class="blight"><b>APOC — Raw Magic Blight: ${rec.blight[0]}.</b> ${rec.blight[1]}</div>`;
     div.innerHTML=`<div class="tag">${rec.time.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</div><div class="name">${rec.name}</div><div class="eff">${html}</div>${extra}<div class="meta">${meta}</div>`;
@@ -234,6 +237,7 @@ function copyRec(rec,btn){
   rollExprStored(rec);
   let t=`${DATA[rec.key].kind==='hit'?'CRITICAL HIT':'CRITICAL FUMBLE'} (${DATA[rec.key].label}) — ${rec.name}: ${rec.eff}`;
   if(rec._rolls&&rec._rolls.length) t+=`  | Rolls: `+rec._rolls.map(r=>`${r.expr} = ${r.tot}`).join(', ');
+  if(rec.misfire) t+=`  | AUTOMATIC MISFIRE CHART: ${rec.misfire.text}`;
   if(rec.severed) t+=`  | APOC SEVERED: ${rec.severed}`;
   if(rec.blight) t+=`  | APOC BLIGHT — ${rec.blight[0]}: ${rec.blight[1]}`;
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>{btn.textContent='Copied ✓';setTimeout(()=>btn.textContent='Copy',1200);}).catch(()=>{prompt('Copy this:',t);});
@@ -266,27 +270,10 @@ function makeMisfire(forcedRaw){
   else if(clamped<=18){let parts=[],tot=0;for(let i=0;i<3;i++){const r=rollDie(10);parts.push(r);tot+=r;}band=`The barrel becomes fouled with powder residue. It takes <b>${tot} minutes</b> [3d10: ${parts.join('+')}] to clean the weapon so it can be used again.`;}
   else band='The weapon <b>explodes</b>, inflicting its normal damage to its user. The weapon must be repaired or replaced.';
   const rollLine=`🎲 Chart roll: <b>${raw}</b>${notes.length?' ('+notes.join(', ')+' → <b>'+clamped+'</b>)':' → <b>'+clamped+'</b>'}`;
-  const html=`${rollLine}<br>${band}<div class="small">Sorcery &amp; Steam, p.146 Misfire table — rolled automatically because the firearm attack was a natural 1.</div>`;
+  const html=`${rollLine}<br>${band}<div class="small">Sorcery &amp; Steam, p.146 Misfire table — rolled automatically from the Guns fumble button.</div>`;
   const text=`${rollLine.replace(/<[^>]+>/g,'')}: ${band.replace(/<[^>]+>/g,'')}`;
   return {raw, adjusted: clamped, notes, band, html, text};
 }
-function resolveFirearmAttack(forcedAttack){
-  const attack = Number.isInteger(forcedAttack) ? forcedAttack : rollDie(20);
-  if(attack < 1 || attack > 20) return {attack, misfire:null};
-  $('atkroll').value = attack;
-  if(attack !== 1){
-    $('misout').innerHTML=`<div class="misres">🎲 Firearm attack roll: <b>${attack}</b> — not a natural 1, so no misfire chart roll.</div>`;
-    return {attack, misfire:null};
-  }
-  const misfire = makeMisfire();
-  $('misout').innerHTML=`<div class="misres">🎲 Firearm attack roll: <b>1 — natural 1</b>. The misfire chart was rolled automatically.<br>${misfire.html}</div>`;
-  return {attack, misfire};
-}
-$('rollattack').onclick=()=>resolveFirearmAttack();
-$('atkroll').addEventListener('change',()=>{
-  const attack = parseInt($('atkroll').value,10);
-  if(Number.isInteger(attack)) resolveFirearmAttack(attack);
-});
 // firearms table
 (()=>{const t=$('gunstable');MASTER_GUNS.forEach(g=>{const gh=document.createElement('tr');gh.innerHTML=`<td colspan="5" style="background:var(--panel2);font-weight:bold;color:var(--brass)">${g.group}</td>`;t.appendChild(gh);g.rows.forEach(f=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${f.name}</td><td>${f.dmg}</td><td>${f.crit}</td><td>${f.range}</td><td>${f.notes}</td>`;t.appendChild(tr);});});})();
 // browse
