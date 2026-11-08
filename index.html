@@ -78,6 +78,11 @@ body.cg-arrange .cg-piece{outline:1px dashed var(--brass);outline-offset:2px}
 body.cg-arrange .cg-piece>*:not(.cg-grip):not(.cg-keep){pointer-events:none}
 .cg-ph{border:1px dashed var(--line);border-radius:10px;background:rgba(255,255,255,.03)}
 .cg-floated{margin:0 !important;max-width:none}
+/* Rule 5 (Shaun, 2026-11-08): drop a block ON another block and it
+   nests inside/under it; drag it back out to un-nest; Reset layout
+   un-nests everything. */
+.cg-nested{margin:10px 0 6px 14px;border-left:3px solid var(--brass);padding-left:10px}
+.cg-drop-ok{outline:2px solid var(--brass) !important;outline-offset:2px}
 .empty{color:var(--dim);font-style:italic;padding:10px 2px}
 </style>
 </head>
@@ -166,7 +171,7 @@ body.cg-arrange .cg-piece>*:not(.cg-grip):not(.cg-keep){pointer-events:none}
 </details>
 
 <footer>
-Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. v1.5, 2026-11-08 — finishing sweep: the APOC SEVERED rulings now also cover Monster Rift (summoning is dead — nothing answers) and Time Vortex (nothing leaves this world and comes back), matching Planar Rift and Distance Rift; with the APOC toggle on, no drawn card can produce a working summoning, teleport, or plane-shift effect. Decks, guns list, and all other behaviour verified unchanged. v1.6, 2026-11-08 — Shaun's platform-wide rules applied: buttons trimmed to minimum footprints (deck tiles, segmented controls, action and card buttons); the deck-picker dropdown and its options carry the one uniform dark scheme (no white-on-white); and every block is now movable by Shaun — the Arrange button in the control bar turns on grip-drag for the controls, both deck grids, the results, and the Guns / Browse / Rules panels, remembered on his device, with Reset layout to put them back. v1.6.1, 2026-11-08 — fix from the v1.6 verification: the Guns / Browse / Rules grips now sit inside their panel summaries, so they show while those panels are closed too (a closed details hides its other children). The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
+Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. v1.5, 2026-11-08 — finishing sweep: the APOC SEVERED rulings now also cover Monster Rift (summoning is dead — nothing answers) and Time Vortex (nothing leaves this world and comes back), matching Planar Rift and Distance Rift; with the APOC toggle on, no drawn card can produce a working summoning, teleport, or plane-shift effect. Decks, guns list, and all other behaviour verified unchanged. v1.6, 2026-11-08 — Shaun's platform-wide rules applied: buttons trimmed to minimum footprints (deck tiles, segmented controls, action and card buttons); the deck-picker dropdown and its options carry the one uniform dark scheme (no white-on-white); and every block is now movable by Shaun — the Arrange button in the control bar turns on grip-drag for the controls, both deck grids, the results, and the Guns / Browse / Rules panels, remembered on his device, with Reset layout to put them back. v1.6.1, 2026-11-08 — fix from the v1.6 verification: the Guns / Browse / Rules grips now sit inside their panel summaries, so they show while those panels are closed too (a closed details hides its other children). v1.7, 2026-11-08 — Rule 5 completes the set: in Arrange mode, dropping a block ON another block nests it inside/under that block (drag it back out to un-nest; Reset layout un-nests everything; nests are remembered on this device like positions). Two blocks can never host a nest: the results block (a draw rewrites its insides) and the control bar that carries the Arrange controls. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
 </footer>
 </main>
 <script>
@@ -321,7 +326,7 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
   try { store = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e) { store = {}; }
   var main = document.querySelector("main");
   var defs = ["#cgControls","#cgHits","#cgFumbs","#cgActions","#results","#gunspanel","#cgBrowse","#cgRules"];
-  var pieces = [], zTop = 40, session = null;
+  var pieces = [], bySel = {}, zTop = 40, session = null;
   function persist(){
     if (Object.keys(store).length) { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
     else { try { localStorage.removeItem(KEY); } catch(e) {} }
@@ -349,8 +354,18 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
     p.floated = true;
   }
   function unfloat(p){
-    if (!p.floated) return;
+    if (!p.floated && !p.nested) return;
     var el = p.el;
+    if (p.nested) {
+      p.nested = null;
+      el.classList.remove("cg-nested");
+      if (p.ph) { p.ph.remove(); p.ph = null; }
+      if (p.origStyle === null) el.removeAttribute("style"); else el.setAttribute("style", p.origStyle);
+      el.classList.remove("cg-floated");
+      if (p.homeNext && p.homeNext.parentNode === p.homeParent) p.homeParent.insertBefore(el, p.homeNext);
+      else p.homeParent.appendChild(el);
+      return;
+    }
     if (p.ph) { p.ph.remove(); p.ph = null; }
     if (p.origStyle === null) el.removeAttribute("style"); else el.setAttribute("style", p.origStyle);
     el.classList.remove("cg-floated");
@@ -358,7 +373,59 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
     else p.homeParent.appendChild(el);
     p.floated = false;
   }
+  /* Rule 5: nesting. Two blocks can never host: the results block
+     (a card draw rewrites its insides — a nested block would be
+     wiped) and the control bar (it carries the Arrange controls
+     themselves). A block can never nest into itself or its own
+     child, so cycles are impossible. */
+  var NO_HOST = { "#results":1, "#cgControls":1 };
+  function nestHostAt(p, x, y){
+    var best = null, bestArea = Infinity;
+    pieces.forEach(function(q){
+      if (q === p || NO_HOST[q.id]) return;
+      if (p.el.contains(q.el)) return;
+      if (q.el.contains(p.el)) return; /* never into its own ancestor */
+      if (q.el.offsetParent === null && q.el.style.position !== "fixed") return;
+      var r = q.el.getBoundingClientRect();
+      if (r.width < 20 || r.height < 20) return;
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+        var a = r.width * r.height;
+        if (a < bestArea) { bestArea = a; best = q; }
+      }
+    });
+    return best;
+  }
+  function nestP(p, host, restoring){
+    if (!host || host === p || p.el.contains(host.el)) return false;
+    if (p.ph) { p.ph.remove(); p.ph = null; }
+    if (p.origStyle === null) p.el.removeAttribute("style"); else p.el.setAttribute("style", p.origStyle);
+    p.el.classList.remove("cg-floated");
+    p.el.classList.add("cg-nested");
+    host.el.appendChild(p.el);
+    p.nested = host; p.floated = false;
+    if (!restoring) saveP(p);
+    return true;
+  }
+  function detachP(p){
+    var el = p.el, r = el.getBoundingClientRect();
+    p.nested = null;
+    el.classList.remove("cg-nested");
+    var ph = document.createElement("div");
+    ph.className = "cg-ph"; ph.style.width = Math.round(r.width) + "px"; ph.style.height = Math.round(r.height) + "px";
+    if (p.homeNext && p.homeNext.parentNode === p.homeParent) p.homeParent.insertBefore(ph, p.homeNext);
+    else p.homeParent.appendChild(ph);
+    p.ph = ph;
+    main.appendChild(el);
+    el.classList.add("cg-floated");
+    el.style.position = "fixed";
+    el.style.left = Math.round(r.left) + "px";
+    el.style.top = Math.round(r.top) + "px";
+    el.style.width = Math.round(r.width) + "px";
+    el.style.zIndex = String(++zTop);
+    p.floated = true;
+  }
   function saveP(p){
+    if (p.nested) { store[p.id] = { nest: p.nested.id }; persist(); return; }
     if (!p.floated) { delete store[p.id]; persist(); return; }
     var el = p.el;
     store[p.id] = {
@@ -383,12 +450,19 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
     if (!s.moved) {
       if (Math.hypot(dx, dy) < 7) return;
       s.moved = true;
-      if (!s.p.floated) floatP(s.p, null);
+      if (!s.p.floated) { if (s.p.nested) detachP(s.p); else floatP(s.p, null); }
       s.bx = parseFloat(s.p.el.style.left) || 0; s.by = parseFloat(s.p.el.style.top) || 0;
       s.sx = e.clientX; s.sy = e.clientY;
     }
     s.p.el.style.left = Math.round(s.bx + (e.clientX - s.sx)) + "px";
     s.p.el.style.top = Math.round(s.by + (e.clientY - s.sy)) + "px";
+    s.cx = e.clientX; s.cy = e.clientY;
+    var hot = nestHostAt(s.p, e.clientX, e.clientY);
+    if (s.hot !== hot) {
+      if (s.hot) s.hot.el.classList.remove("cg-drop-ok");
+      s.hot = hot;
+      if (hot) hot.el.classList.add("cg-drop-ok");
+    }
     if (e.cancelable) e.preventDefault();
   }
   function onUp(){
@@ -396,12 +470,17 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
     window.removeEventListener("pointermove", onMove);
     window.removeEventListener("pointerup", onUp);
     window.removeEventListener("pointercancel", onUp);
-    if (s && s.moved) saveP(s.p);
+    if (!s) return;
+    if (s.hot) { s.hot.el.classList.remove("cg-drop-ok"); s.hot = null; }
+    if (s.moved) {
+      var host = (typeof s.cx === "number") ? nestHostAt(s.p, s.cx, s.cy) : null;
+      if (!(host && nestP(s.p, host))) saveP(s.p);
+    }
   }
   defs.forEach(function(sel){
     var el = document.querySelector(sel);
     if (!el) return;
-    var p = { id:sel, el:el, floated:false, ph:null,
+    var p = { id:sel, el:el, floated:false, ph:null, nested:null,
               origStyle: el.getAttribute("style"),
               homeParent: el.parentNode, homeNext: el.nextSibling };
     el.classList.add("cg-piece");
@@ -430,12 +509,21 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
       });
     }
     pieces.push(p);
+    bySel[sel] = p;
     var rec = store[sel];
     if (rec && typeof rec.x === "number") {
       rec.x = Math.max(0, Math.min(rec.x, Math.max(0, window.innerWidth - 70)));
       rec.y = Math.max(0, Math.min(rec.y, Math.max(0, window.innerHeight - 34)));
       floatP(p, rec);
     }
+  });
+  /* Rule 5: restore nests after all blocks exist and floats are
+     restored, so a host is in place before children move into it. */
+  pieces.forEach(function(p){
+    var rec = store[p.id];
+    if (!rec || !rec.nest) return;
+    var host = bySel[rec.nest];
+    if (host && host !== p) nestP(p, host, true);
   });
   var arrBtn = document.getElementById("cgArrange");
   if (arrBtn) arrBtn.addEventListener("click", function(){
