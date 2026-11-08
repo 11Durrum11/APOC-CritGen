@@ -73,7 +73,7 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
 .cgp{position:relative}
 .cg-piece{position:relative}
 .cg-grip{display:none;position:absolute;top:4px;right:4px;z-index:30;width:26px;height:26px;align-items:center;justify-content:center;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:7px;cursor:grab;font-size:14px;line-height:1;padding:0}
-body.cg-arrange .cg-grip{display:inline-flex}
+body.cg-arrange .cg-grip{display:inline-flex;pointer-events:auto}
 body.cg-arrange .cg-piece{outline:1px dashed var(--brass);outline-offset:2px}
 body.cg-arrange .cg-piece>*:not(.cg-grip):not(.cg-keep){pointer-events:none}
 .cg-ph{border:1px dashed var(--line);border-radius:10px;background:rgba(255,255,255,.03)}
@@ -166,7 +166,7 @@ body.cg-arrange .cg-piece>*:not(.cg-grip):not(.cg-keep){pointer-events:none}
 </details>
 
 <footer>
-Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. v1.5, 2026-11-08 — finishing sweep: the APOC SEVERED rulings now also cover Monster Rift (summoning is dead — nothing answers) and Time Vortex (nothing leaves this world and comes back), matching Planar Rift and Distance Rift; with the APOC toggle on, no drawn card can produce a working summoning, teleport, or plane-shift effect. Decks, guns list, and all other behaviour verified unchanged. v1.6, 2026-11-08 — Shaun's platform-wide rules applied: buttons trimmed to minimum footprints (deck tiles, segmented controls, action and card buttons); the deck-picker dropdown and its options carry the one uniform dark scheme (no white-on-white); and every block is now movable by Shaun — the Arrange button in the control bar turns on grip-drag for the controls, both deck grids, the results, and the Guns / Browse / Rules panels, remembered on his device, with Reset layout to put them back. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
+Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. v1.5, 2026-11-08 — finishing sweep: the APOC SEVERED rulings now also cover Monster Rift (summoning is dead — nothing answers) and Time Vortex (nothing leaves this world and comes back), matching Planar Rift and Distance Rift; with the APOC toggle on, no drawn card can produce a working summoning, teleport, or plane-shift effect. Decks, guns list, and all other behaviour verified unchanged. v1.6, 2026-11-08 — Shaun's platform-wide rules applied: buttons trimmed to minimum footprints (deck tiles, segmented controls, action and card buttons); the deck-picker dropdown and its options carry the one uniform dark scheme (no white-on-white); and every block is now movable by Shaun — the Arrange button in the control bar turns on grip-drag for the controls, both deck grids, the results, and the Guns / Browse / Rules panels, remembered on his device, with Reset layout to put them back. v1.6.1, 2026-11-08 — fix from the v1.6 verification: the Guns / Browse / Rules grips now sit inside their panel summaries, so they show while those panels are closed too (a closed details hides its other children). The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
 </footer>
 </main>
 <script>
@@ -408,7 +408,12 @@ setInterval(()=>{try{localStorage.setItem('critgen-apoc',JSON.stringify({apoc,mo
     var grip = document.createElement("button");
     grip.type = "button"; grip.className = "cg-grip"; grip.textContent = "⠿";
     grip.title = "Drag to move this block"; grip.setAttribute("aria-label", "Move this block");
-    el.appendChild(grip);
+    /* A closed <details> hides every child except its <summary> — so
+       on the Guns / Browse / Rules panels the grip lives INSIDE the
+       summary, the one part that is always visible. (v1.6 put it on
+       the details itself; it only showed while the panel was open.) */
+    var gripHost = (el.tagName === "DETAILS" && el.querySelector("summary")) ? el.querySelector("summary") : el;
+    gripHost.appendChild(grip);
     p.grip = grip;
     if (sel === "#results") {
       /* Drawing cards rewrites #results' innerHTML, which would wipe
