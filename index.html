@@ -145,7 +145,7 @@ footer{color:var(--dim);font-size:12.5px;margin:22px 0 8px;line-height:1.55}
 </details>
 
 <footer>
-Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
+Built 2026-10-31 as a better version of CritGen! (pfcompanion.com); v1.1, 2026-11-01 — correction at Shaun's word: the Fog of Life is not damp, so the fog-damp misfire modifier from v1 is removed entirely; v1.2, 2026-11-01 — the Guns panel now carries the master firearms list: every firearm of any kind from all of Shaun's resources (52 weapons, grouped by source); v1.4, 2026-11-01 — correction at Shaun's instruction: there is no firearm attack-roll control; tapping the Guns button under Critical Fumbles automatically rolls the Sorcery &amp; Steam misfire chart with the fumble card, and there is no separate misfire roll button. v1.5, 2026-11-08 — finishing sweep: the APOC SEVERED rulings now also cover Monster Rift (summoning is dead — nothing answers) and Time Vortex (nothing leaves this world and comes back), matching Planar Rift and Distance Rift; with the APOC toggle on, no drawn card can produce a working summoning, teleport, or plane-shift effect. Decks, guns list, and all other behaviour verified unchanged. The eight original decks (416 cards) are reproduced from the original app; the two Guns decks (104 cards) are new, written for this app in the same style from <i>Sorcery &amp; Steam</i> (Fantasy Flight Games, Legends &amp; Lairs), Chapter 4: Steamcraft and Black Powder. D&amp;D 3.5 terms throughout (Spot / Search / Listen / Escape Artist). APOC Survival additions are house material and live behind the APOC toggle only. Single file, works offline.
 </footer>
 </main>
 <script>
@@ -161,7 +161,9 @@ const BLIGHT = [
 ];
 const SEVERED = {
  "Planar Rift":"SEVERED in APOC — planar travel is cut off. The rift opens on grey nothing and slams shut: use double damage instead, and the target is stunned for 1 round (Will negates stun).",
- "Distance Rift":"SEVERED in APOC — planar travel is cut off. Instead of teleporting, you lurch 5 ft in a random direction through the Fog and are dazed for 1 round."
+ "Distance Rift":"SEVERED in APOC — planar travel is cut off. Instead of teleporting, you lurch 5 ft in a random direction through the Fog and are dazed for 1 round.",
+ "Monster Rift":"SEVERED in APOC — summoning is dead; nothing answers. The spell collapses in your hands: it is lost, and you are dazed for 1 round as the raw magic recoils through the Fog.",
+ "Time Vortex":"SEVERED in APOC — nothing leaves this world and comes back; the sphere is sealed. The target flickers in the Fog but stays exactly where it stands: use normal damage instead, and the target is dazed for 1 round (Will negates)."
 };
 let mult = 3, mode = 'deck', apoc = false;
 let queues = {}, history = [];
